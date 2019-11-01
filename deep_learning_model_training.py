@@ -26,7 +26,7 @@ hidden_size = 10
 data_size, features_dim = features.shape
 training_size = batch_size * int(training_ratio * data_size / batch_size)
 # assumes data not already in randomized order
-is_training = np.random.sample(data_size, size=training_size, replace=False)
+is_training = np.random.choice(data_size, size=training_size, replace=False)
 is_validation = np.array([index not in is_training for index in range(data_size)])
 validation_labels = labels[is_validation]
 validation_features = features[is_validation]
