@@ -5,8 +5,6 @@ import tensorflow as tf
 if type(tf.contrib) != type(tf): tf.contrib._warning = None
 tf.logging.set_verbosity(tf.logging.FATAL)
 
-import pandas as pd
-
 ###############################################################
 # synthesize data
 data_size = 1000
@@ -14,23 +12,26 @@ feature_dim = 3
 balance = 0.25
 labels = np.random.choice(2, data_size, p=(1-balance, balance)).astype(bool)
 features = np.random.sample((data_size, feature_dim))
-class_balance = np.mean(labels)
+
 ###############################################################
 # Set hyperparameters
 training_ratio = 0.8  # Fraction of total data size
 batch_size = 20
 num_epochs = 100
 learning_rate = 1e-3
+class_balance = np.mean(labels)
 # balance_correction = 10
 balance_correction = 1 / class_balance
 hidden_size = 10
 data_size, features_dim = features.shape
 training_size = batch_size * int(training_ratio * data_size / batch_size)
-# assumes data already in randomized order
-validation_labels = labels[training_size:]
-validation_features = features[training_size:]
-training_labels = labels[:training_size]
-training_features = features[:training_size]
+# assumes data not already in randomized order
+is_training = np.random.sample(data_size, size=training_size, replace=False)
+is_validation = np.array([index not in is_training for index in range(data_size)])
+validation_labels = labels[is_validation]
+validation_features = features[is_validation]
+training_labels = labels[is_training]
+training_features = features[is_training]
 batches_per_epoch = int(training_size / batch_size)
 ###############################################################
 # Network structure
