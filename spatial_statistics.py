@@ -31,7 +31,7 @@ def mixed_metric(features_1, features_2, is_bool_feature=None):
     return hybrid_dist
 
 
-def min_distances_parallel(X, Y, bool_mask):
+def min_distances_parallel(X, Y, bool_mask=None):
     """
     Parallel computation of minimum distances.
     :param X: 2D numpy array of features
@@ -51,7 +51,7 @@ def min_distances_parallel(X, Y, bool_mask):
     return min_dsts_
 
 
-def min_distances(X, Y, bool_mask):
+def min_distances(X, Y, bool_mask=None):
     """
     Serial computation of minimum distances.
     :param X: 2D numpy array of features
@@ -73,7 +73,7 @@ def min_dist_func_getter(parallel_, is_bool_feature_):
         return lambda X, Y: min_distances(X, Y, is_bool_feature_)
 
 
-def get_weights_and_bias(features_, is_bool_feature_, labels_, is_validation_, parallel=False):
+def get_weights_and_bias(features_, labels_, is_validation_, is_bool_feature_=None, parallel=False):
     """
     Computes validation weights for later use in weighted model performance metrics. Also computes uky_score.
     :param features_: 2D numpy array of features
