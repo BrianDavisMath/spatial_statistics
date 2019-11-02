@@ -4,6 +4,9 @@ of binary-labeled data sets. The inspiration is [this paper](https://arxiv.org/p
 This suggests that, in order to combat overfitting, we may want to compare weighted and unweighted performance metrics, for a weighting which accounts for the spatial distribution of the binary classes between the training and validation sets.
 
 The function ```spatial_statistics.get_weights_and_bias``` allows one to consider distances for features which have a mix of binary features and continuous features. It is recommended that the continuous features be normalized in pre-processing in order to avoid one feature dominating the distance computations.
+
+For continuous features we use Euclidean distance, and for binary features we use the Jaccard metric.
+
 ## Usage
   ```
 import numpy as np
