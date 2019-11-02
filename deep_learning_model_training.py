@@ -1,7 +1,9 @@
 import numpy as np
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 import tensorflow as tf
-
-import pandas as pd
+if type(tf.contrib) != type(tf): tf.contrib._warning = None
+tf.logging.set_verbosity(tf.logging.FATAL)
 
 ###############################################################
 # synthesize data
@@ -10,23 +12,26 @@ feature_dim = 3
 balance = 0.25
 labels = np.random.choice(2, data_size, p=(1-balance, balance)).astype(bool)
 features = np.random.sample((data_size, feature_dim))
-class_balance = np.mean(labels)
+
 ###############################################################
 # Set hyperparameters
 training_ratio = 0.8  # Fraction of total data size
 batch_size = 20
-num_epochs = 100
+num_epochs = 1000
 learning_rate = 1e-3
+class_balance = np.mean(labels)
 # balance_correction = 10
 balance_correction = 1 / class_balance
 hidden_size = 10
 data_size, features_dim = features.shape
 training_size = batch_size * int(training_ratio * data_size / batch_size)
-# assumes data already in randomized order
-validation_labels = labels[training_size:]
-validation_features = features[training_size:]
-training_labels = labels[:training_size]
-training_features = features[:training_size]
+# assumes data not already in randomized order
+is_training = np.random.choice(data_size, size=training_size, replace=False)
+is_validation = np.array([index not in is_training for index in range(data_size)])
+validation_labels = labels[is_validation].reshape(-1, 1)
+validation_features = features[is_validation].reshape(-1, feature_dim)
+training_labels = labels[is_training].reshape(-1, 1)
+training_features = features[is_training].reshape(-1, feature_dim)
 batches_per_epoch = int(training_size / batch_size)
 ###############################################################
 # Network structure
@@ -58,14 +63,19 @@ with tf.Session() as sess:
         batch_count = 0
         for batch in batches:
             batch_count += 1
-            batch_labels = training_labels[batch]
-            batch_features = training_features[batch]
+            batch_labels = training_labels[batch].reshape(-1, 1)
+            batch_features = training_features[batch].reshape(-1, features_dim)
             # run optimizer on current batch
             sess.run(opt, feed_dict={features_in: batch_features, labels_in: batch_labels})
         training_cost = sess.run(cost, feed_dict={features_in: training_features, labels_in: training_labels})
         validation_cost = sess.run(cost, feed_dict={features_in: validation_features, labels_in: validation_labels})
         training_costs.append(training_cost)
         validation_costs.append(validation_cost)
-        validation_performances.append()
-        validation_performances_weighted.append()
+        moving_average_training_costs = np.mean(training_costs[epoch-2: epoch+2])
+        moving_average_validation_costs = np.mean(validation_costs[epoch - 2: epoch + 2])
+        print(f"epoch: {epoch}/{num_epochs}: \n training cost: {moving_average_training_costs}, "
+              f"validation cost: {moving_average_validation_costs}")
+        # validation_performances.append()
+        # validation_performances_weighted.append()
+
 
