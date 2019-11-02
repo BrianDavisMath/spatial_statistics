@@ -1,6 +1,7 @@
 # spatial_statistics
 A repo for computing spatial statistics of training / validation splits
-of binary-labeled data sets.
+of binary-labeled data sets. The inspiration is [this paper](https://arxiv.org/pdf/1706.06619.pdf) which discusses how, for some binary-labeled datasets, random splits lead to overly optimistic performance estimates.
+This suggests that, in order to combat overfitting, we may want to compare weighted and unweighted performance metrics, for a weighting which accounts for the spatial distribution of the binary classes between the training and validation sets.
 
 ## Usage
   ```
